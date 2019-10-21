@@ -1,0 +1,64 @@
+$ cd Desktop/
+$ mkdir inputdata
+$ cd inputdata/
+$ echo “Hai, Hello, How are you? How is your health?” >> file.txt
+$ cat >> file.txt
+Step 2 – Download and open eclipse by creating workspace
+Create a new java project.
+Step 3 – Add jar to the project
+You need to remove dependencies by adding jar files in the hadoop source folder. Now Click
+on Project tab and go to Properties.Under Libraries tab, click Add External JARs and select all
+the jars in the folder (click on 1st jar, and Press Shift and Click on last jat to select all jars in
+between and click ok)
+/usr/local/hadoop/hadoop-2.7.2/share/hadoop/common and
+/usr/local/hadoop/hadoop-2.7.2/share/hadoop/mapreduce folders.
+Step 4 – Program
+import org.apache.hadoop.conf.Configured;
+import org.apache.hadoop.util.Tool;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.io.IOUtils;
+import org.apache.hadoop.util.ToolRunner;
+public class HdfsWriter extends Configured implements Tool {
+public static final String FS_PARAM_NAME = "fs.defaultFS";
+public int run(String[] args) throws Exception {if (args.length < 2) {
+System.err.println("HdfsWriter /home/rec/Desktop/input/file.txt /hello");
+return 1;
+}
+String localInputPath = args[0];
+Path outputPath = new Path(args[1]);
+Configuration conf = getConf();
+System.out.println("configured filesystem = " + conf.get(FS_PARAM_NAME));
+FileSystem fs = FileSystem.get(conf);
+if (fs.exists(outputPath)) {
+System.err.println("output path exists");
+return 1;
+}
+OutputStream os = fs.create(outputPath);
+InputStream is = new BufferedInputStream(new FileInputStream(localInputPath));
+IOUtils.copyBytes(is, os, conf);
+return 0;
+}
+public static void main( String[] args ) throws Exception {
+int returnCode = ToolRunner.run(new HdfsWriter(), args);
+System.exit(returnCode);
+}
+}
+Step 5 - Creatr JAR file
+Now Click on the Run tab and click Run-Configurations. Click on New Configuration button on
+the left-top side and Apply after filling the following properties.
+Step 6 - Export JAR file
+Now click on File tab and select Export. under Java, select Runnable Jar.
+In Launch Config – select the config fie you created in Step 9 (WordCountConfig).
+ Select an export destination (lets say desktop.)
+ Under Library handling, select Extract Required Libraries into generated JAR and click
+Finish.
+ Right-Click the jar file, go to Properties and under Permissionstab, Check Allow
+executing file as a program. and give Read and Write access to all the users
+Step 7–Execute File
+hadoop jar /home/rec/Desktop/HelloWrite.jar /home/rec/Desktop/input/file.txt /hello
